@@ -69,16 +69,34 @@ CWBool CWParseSettingsFile()
 		
 	gSettingsFile = fopen (CW_SETTINGS_FILE, "rb");
 	if (gSettingsFile == NULL) {
-		CWErrorRaiseSystemError(CW_ERROR_GENERAL);
+		
+		/*CWErrorRaiseSystemError(CW_ERROR_GENERAL);*/
+		char buf[256];	
+		strerror_r(errno, buf, 256);
+		printf("Error message: %s\n", buf);
+		CWErrorRaise(CW_ERROR_GENERAL, buf);
+		return CW_FALSE;
+		
 	}
-	
-	CW_CREATE_ARRAY_ERR(gDefaultQosValues, NUM_QOS_PROFILES, WTPQosValues, return CWErrorRaise(CW_ERROR_OUT_OF_MEMORY, NULL););
+	printf("settings.ac.txt opened\n");
+	/*CW_CREATE_ARRAY_ERR(gDefaultQosValues, NUM_QOS_PROFILES, WTPQosValues, return CWErrorRaise(CW_ERROR_OUT_OF_MEMORY, NULL););*/
+
+	{gDefaultQosValues = (WTPQosValues*) (malloc(sizeof(WTPQosValues) * (4))); 
+		if(!(gDefaultQosValues)) 
+			{
+				printf("gDefaultQosValues=0\n");
+				return _CWErrorRaise(CW_ERROR_OUT_OF_MEMORY, ((void*)0), "/home/skylab/Mywork/openwrt/package/CAPWAP/openCAPWAP/ACSettingsFile.c", 75);
+			}
+	}
 	
 	while((line = (char*)CWGetCommand(gSettingsFile)) != NULL) 
 	{
 		char* startTag=NULL;
 		char* endTag=NULL;
 		
+		printf("%s\n",line);
+		printf("%p\n",line);
+
 		if((startTag=strchr (line, '<'))==NULL) 
 		{
 			CW_FREE_OBJECT(line);

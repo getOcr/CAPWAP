@@ -525,7 +525,7 @@ void CWACManageIncomingPacket(CWSocket sock,
  * 
  * Elena Agostini - 04/2014: more WTPs with same IPs, different PORTs
  */
-__inline__ CWWTPManager *CWWTPByAddress(CWNetworkLev4Address *addressPtr, CWSocket sock, CWBool dataFlag, char * sessionID) {
+/*__inline__ */CWWTPManager *CWWTPByAddress(CWNetworkLev4Address *addressPtr, CWSocket sock, CWBool dataFlag, char * sessionID) {
 
 	int i;
 	

@@ -42,6 +42,7 @@
 #include "../dmalloc-5.5.0/dmalloc.h"
 #endif
 
+
 static FILE *gLogFile = NULL;
 
 #ifndef CW_SINGLE_THREAD
@@ -94,7 +95,7 @@ void CWLogCloseFile() {
 	fclose(gLogFile);
 }
 
-__inline__ void CWVLog(const char *format, va_list args) {
+/*__inline__ */void CWVLog(const char *format, va_list args) {
 	char *logStr = NULL;
 	time_t now;
 	char *nowReadable = NULL;
@@ -142,16 +143,23 @@ __inline__ void CWVLog(const char *format, va_list args) {
 	CW_FREE_OBJECT(logStr);
 }
 
-/*__inline__ void CWLog(const char *format, ...) {
+/*__inline__ */void CWLog(const char *format, ...) {
+	printf("in CWLog:");
 	va_list args;
 	
 	va_start(args, format);
+	
 	if (gEnabledLog)
-		{CWVLog(format, args);}
-	va_end(args);
-}*/
+		{
+			vprintf(format, args);
+			printf("\n");
 
-__inline__ void CWDebugLog(const char *format, ...) {
+			CWVLog(format, args);
+		}
+	va_end(args);
+}
+
+/*__inline__ */void CWDebugLog(const char *format, ...) {
 	#ifdef CW_DEBUGGING
 		char *logStr = NULL;
 		va_list args;
@@ -161,9 +169,9 @@ __inline__ void CWDebugLog(const char *format, ...) {
 		if (!gEnabledLog) {return;}
 
 		if(format == NULL) {
-#ifdef WRITE_STD_OUTPUT
+		#ifdef WRITE_STD_OUTPUT
 			printf("\n");
-#endif
+		#endif
 			return;
 		}
 		
@@ -204,9 +212,9 @@ __inline__ void CWDebugLog(const char *format, ...) {
 			CWThreadMutexUnlock(&gFileMutex);
 			#endif
 		}
-#ifdef WRITE_STD_OUTPUT	
+		#ifdef WRITE_STD_OUTPUT	
 		vprintf(logStr, args);
-#endif
+		#endif
 		
 		va_end(args);
 		CW_FREE_OBJECT(logStr);

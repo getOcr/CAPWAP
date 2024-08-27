@@ -56,15 +56,15 @@
 #include <unistd.h>
 #ifdef MACOSX
 	#include <netinet/if_ether.h>
-#else
-	#include <linux/if_ether.h>
+/*#else
+	#include <linux/if_ether.h>   */
 #endif
 #include <net/if.h>
 #include <sys/ioctl.h>
 #include <sys/file.h>
 #include "wireless_copy.h"
        #include <netpacket/packet.h>
-      #include <net/ethernet.h> 
+      #include <net/ethernet.h>     /******************************************** */
        
 /* *********** NL80211 support ************** */
 #include <stdio.h>
@@ -167,6 +167,7 @@ extern char * wtpLogFile;
 #define	CW_STRING_GET_START_WHITE_SPACES(str, blank)	{ int i = 0; blank=0; for(i = 0; i < strlen(str); i++) if(str[i] == ' ' || str[i] == '\t') blank++; else break; }
 #define	CW_CREATE_ARRAY_CALLOC_ERR(ar_name, ar_size, ar_type, on_err)	{ar_name = (ar_type*) (calloc((ar_size), sizeof(ar_type))); if(!(ar_name)) {on_err}}
 
+#define CW_DEBUGGING
 
 
 #ifdef CW_DEBUGGING

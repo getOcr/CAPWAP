@@ -28,7 +28,8 @@
 #elif defined(__x86_64__)
 #include "opensslconf-x86_64.h"
 #else
-#error "This openssl-devel package does not work your architecture?"
+#include "opensslconf-x86_64.h"
+/*#error "This openssl-devel package does not work your architecture?"*/
 #endif
 
 #undef openssl_opensslconf_multilib_redirection_h

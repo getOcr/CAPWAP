@@ -56,17 +56,30 @@ char *CWFgets(char *buf, int bufSize, FILE *f) {
 	if(buf == NULL || f == NULL || bufSize <= 0) return NULL;
 	
 	CW_ZERO_MEMORY(buf, bufSize);
-	
-	do {
+
+	/*do {
 		i++;
 		buf[i] = getc(f);
+		printf("%c\n",buf[i]);
 		if(buf[i] == EOF) {
 			i--;
 			break;
 		}
+	} while (i < bufSize && buf[i] != '\n' && buf[i] != '\r');*/
+
+	do {
+		i++;
+		buf[i] = getc(f);
+		/*printf("%c\n",buf[i]);*/
+		if((int)buf[i] == 255) {
+			i--;
+			break;
+		}
 	} while (i < bufSize && buf[i] != '\n' && buf[i] != '\r');
+
 	
-	if(i == -1) return NULL;
+	if(i == -1) return NULL; /*when return EOF at the head of a line*/
+
 	i++;
 	buf[i] = '\0';
 	
@@ -85,8 +98,7 @@ char * CWGetCommand(FILE *configFile) {
 	CW_CREATE_STRING_ERR(buff, CW_BUFFER_SIZE, return NULL;);
 	
 	/* skip comments and blank lines */
-	while ( ((ret = CWFgets(buff, CW_BUFFER_SIZE, configFile)) != NULL) &&\
-		(buff[0] == '\n' || buff[0] == '\r' || buff[0] == '#') );
+	while ( ((ret = CWFgets(buff, CW_BUFFER_SIZE, configFile)) != NULL) && (buff[0] == '\n' || buff[0] == '\r' || buff[0] == '#') );
 	
 	if(buff != NULL && ret != NULL) {
 

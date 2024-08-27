@@ -38,7 +38,7 @@
 
  
 #include "CWAC.h"
-#include "CWCommon.h"
+#include "CWCommon.h" //which includes unistd.h
 #include "tap.h"
 
 #ifdef DMALLOC
@@ -53,7 +53,7 @@ CWThreadMutex gCreateIDMutex;
 CWWTPManager gWTPs[CW_MAX_WTP];
 CWThreadMutex gWTPsMutex;
 
-int gEnabledLog;
+int gEnabledLog = 1;
 int gMaxLogFileSize;
 char gLogFileName[]=AC_LOG_FILE_NAME;
 
@@ -126,19 +126,32 @@ int main (int argc, const char * argv[]) {
 
 	/* Daemon mode */
 	
-	if (argc <= 1)
+	if (argc <= 1){
 		printf("Usage: AC working_path\n");
+	}
+	/*printf("222\n");
 
-	if (daemon(1, 0) < 0)
+	int result = daemon(1,0);
+	printf("return of daemon(1,0)=%d\n",result);
+	if (daemon(1, 0) < 0){
+		printf("daemon error\n");
 		exit(1);
+	}
+	printf("333\n");*/
 
-	if (chdir(argv[1]) != 0)
+	if (chdir(argv[1]) != 0){
+		printf("changedir error\n");
 		exit(1);
-	
-	CWACInit();
-	CWACEnterMainLoop();
-	CWACDestroy();  
-	 
+	}
+
+	printf("CWACInit starts...\n");
+	CWACInit(); // reading configure,initialize connection,clock,lock
+	printf("CWACInit ends...\n");
+	CWACEnterMainLoop(); 
+	printf("CWACEnterMainLoop ends...\n");
+	CWACDestroy(); 
+	printf("CWACDestroy ends...\n");
+
 	return 0;
 }
 
@@ -167,6 +180,7 @@ void CWACInit() {
 	struct sockaddr_in *IPv4Addresses = NULL;
 	
 	CWLogInitFile(AC_LOG_FILE_NAME);
+	printf("CWLogInitFile ends...\n");
 
 	#ifndef CW_SINGLE_THREAD
 		CWDebugLog("Use Threads");
@@ -176,12 +190,13 @@ void CWACInit() {
 	
 	CWErrorHandlingInitLib();
 	
-	if(!CWParseSettingsFile())
+	if(!CWParseSettingsFile()) //ac.settings.txt/config.ac/
 	{
+		printf("%s\n",CWParseSettingsFile());
 		CWLog("Can't start AC");
 		exit(1);
 	}
-	
+	printf("ac settings end\n");
 	//Elena Agostini - 07/2014: initialize listGenericThreadDTLSData
 	for(index=0; index < WTP_MAX_TMP_THREAD_DTLS_DATA; index++)
 		listGenericThreadDTLSData[index] = NULL;
@@ -199,7 +214,7 @@ void CWACInit() {
 #if !defined(CW_NO_DTLS) || defined(CW_DTLS_DATA_CHANNEL)
 	   !CWErr(CWSecurityInitLib()) ||
 #endif
-	   !CWErr(CWNetworkInitSocketServerMultiHomed(&gACSocket, CW_CONTROL_PORT, gMulticastGroups, gMulticastGroupsCount)) ||
+	   !CWErr(CWNetworkInitSocketServerMultiHomed(&gACSocket, CW_CONTROL_PORT, gMulticastGroups, gMulticastGroupsCount)) || /*********** */
 	   !CWErr(CWNetworkGetInterfaceAddresses(&gACSocket, &addresses, &IPv4Addresses)) ||
 	   !CWErr(CWCreateThreadMutex(&gWTPsMutex)) ||
 	   !CWErr(CWCreateThreadMutex(&gActiveWTPsMutex))) {
@@ -245,7 +260,7 @@ void CWACInit() {
 		
 		/*
 		if (!gWTPs[i].tap_fd){
-		    init_AC_tap_interface(i);
+		    init_AC_tap_interface(i); 
 		}
 		*/
 	}
@@ -256,7 +271,7 @@ void CWACInit() {
 		exit(-1);
 	}
 	/* store network interface's addresses */
-	gInterfacesCount = CWNetworkCountInterfaceAddresses(&gACSocket);
+	gInterfacesCount = CWNetworkCountInterfaceAddresses(&gACSocket); /********************* */
 	CWLog("Found %d Network Interface(s)", gInterfacesCount);
 	
 	if (gInterfacesCount<=0){
@@ -312,7 +327,7 @@ void CWACDestroy() {
 }
 
 
-__inline__ unsigned int CWGetSeqNum() {
+/*__inline__ */unsigned int CWGetSeqNum() {
 
 	static unsigned int seqNum = 0;
 	unsigned int r;
@@ -334,7 +349,7 @@ __inline__ unsigned int CWGetSeqNum() {
 }
 
 
-__inline__ int CWGetFragmentID() {
+/*__inline__ */int CWGetFragmentID() {
 
 	static int fragID = 0;
 	int r;

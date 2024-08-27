@@ -43,15 +43,15 @@ extern char gLogFileName[];
 
 __inline__ void CWVLog(const char *format, va_list args);
 
-void CWLog(const char *format, ...);
-void CWLog(const char *format, ...) {
+__inline__ void CWLog(const char *format, ...);
+/*__inline__ void CWLog(const char *format, ...) {
 	va_list args;
 	
 	va_start(args, format);
 	if (gEnabledLog)
 		{CWVLog(format, args);}
 	va_end(args);
-}
+}*/
 
 __inline__ void CWDebugLog(const char *format, ...);
 void CWLogInitFile(char *fileName);

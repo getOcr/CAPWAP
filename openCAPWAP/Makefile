@@ -38,13 +38,21 @@
 
 
 
-CC = gcc 
+#CC = gcc  
+CC = aarch64-openwrt-linux-musl-gcc
 
-LDFLAGS = -lssl -lcrypto -lpthread -ldl -D_REENTRANT
+#LDFLAGS = -lssl -lcrypto -lpthread -ldl -D_REENTRANT
+LDFLAGS = -lpthread -ldl -D_REENTRANT
 
 #Elena Agostini: libnl
-LDFLAGS += -lnl-genl-3 -lnl-3
+#LDFLAGS += -lnl-genl-3 -lnl-3
+#DFLAGS += -L/opt/openssl/openssl-1.1.1k/build_arm/lib/ -lssl -lcrypto
+LDFLAGS += -L/opt/openssl098e/openssl-0.9.8e/build_arm/lib/ -lssl -lcrypto
+#LDFLAGS += -L/opt/libnl3/libnl-3.0/lib/.libs -lnl-genl-3 -lnl-3
+LDFLAGS += -L/opt/libnl3/libnl-3.0/lib/.libs -lnl-genl -lnl
+
 LIB_PATH = /usr/local/lib
+
 INC_PATH = /usr/include/libnl3
  
 #LDFLAGS = /usr/lib/libefence.a ./static/libssl.a ./static/libcrypto.a -lpthread -ldl -D_REENTRANT
@@ -57,8 +65,8 @@ CFLAGS += -DCW_NO_DTLS -DCW_NO_DTLSCWParseConfigurationUpdateRequest
 #DTLS Data Channel
 #CFLAGS += -DCW_DTLS_DATA_CHANNEL
 
-OPENSSL_INCLUDE = -I/home/skylab/Mywork/openCAPWAP/include/  #Openssl include files
-
+OPENSSL_INCLUDE = -I/home/skylab/Mywork/openwrt/package/CAPWAP/openCAPWAP/include/  #Openssl include files
+#OPENSSL_INCLUDE = -I/usr/include/
 # Memory leak
 #LDFLAGS += ../dmalloc-5.5.0/libdmallocth.a
 #CFLAGS += -DDMALLOC
@@ -75,6 +83,7 @@ CFLAGS += $(OPENSSL_INCLUDE)
 
 CFLAGS += -I/usr/include/libnl3
 CFLAGS += -I./HostapdHeaders/utils/
+#CFLAGS += -g
 RM = /bin/rm -f 
 
 # list of generated object files for AC. 
@@ -116,11 +125,19 @@ WUA_NAME = WUA
 # top-level rule, to compile everything. 
 all: $(AC_NAME) $(WTP_NAME) $(WUA_NAME)
 
+$(AC_OBJS):%.o:%.c
+	$(CC) $(CC_FLAGS) $(OPENSSL_INCLUDE) -g -c $< -o $@
 $(AC_NAME): $(AC_OBJS) 
-	$(CC) $(AC_OBJS) $(CC_FLAGS) $(OPENSSL_INCLUDE) $(LDFLAGS) -o $(AC_NAME) 
+	$(CC) $(AC_OBJS) $(CC_FLAGS) $(OPENSSL_INCLUDE) $(LDFLAGS) -o $(AC_NAME)
+
+#$(AC_NAME): $(AC_OBJS) 
+#	$(CC) $(AC_OBJS) $(CC_FLAGS) $(OPENSSL_INCLUDE) $(LDFLAGS) -o $(AC_NAME)
+#	$(CC) -g $(AC_OBJS) $(CC_FLAGS) $(OPENSSL_INCLUDE) $(LDFLAGS) -o $(AC_NAME)
+
 #-DSOFTMAC
 $(WTP_NAME): $(WTP_OBJS) 
-	$(CC) -DWRITE_STD_OUTPUT  $(WTP_OBJS) $(CC_FLAGS) $(OPENSSL_INCLUDE)-L$(LIB_PATH)  $(LDFLAGS) -o $(WTP_NAME) 
+#	$(CC) -DWRITE_STD_OUTPUT  $(WTP_OBJS) $(CC_FLAGS) $(OPENSSL_INCLUDE)-L$(LIB_PATH)  $(LDFLAGS) -o $(WTP_NAME) 
+	$(CC) -g -DWRITE_STD_OUTPUT  $(WTP_OBJS) $(CC_FLAGS) $(OPENSSL_INCLUDE) -L$(LIB_PATH)  $(LDFLAGS) -o $(WTP_NAME) 
 
 $(WUA_NAME): $(WUA_OBJS) 
 	$(CC) $(WUA_OBJS) $(CC_FLAGS)  $(OPENSSL_INCLUDE) $(LDFLAGS) -o $(WUA_NAME) 
