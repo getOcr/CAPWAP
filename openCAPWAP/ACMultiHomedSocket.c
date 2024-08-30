@@ -134,7 +134,7 @@ CWBool CWNetworkInitSocketServerMultiHomed(CWMultiHomedSocket *sockPtr,
 					   char **multicastGroups, 
 					   int multicastGroupsCount) {
 
-	struct ifi_info	*ifi, *ifihead;
+	struct ifi_info	*ifi, *ifihead, *jzy, *a;
 	CWNetworkLev4Address wildaddr;
     int yes = 1;
 	CWSocket sock;
@@ -155,11 +155,17 @@ CWBool CWNetworkInitSocketServerMultiHomed(CWMultiHomedSocket *sockPtr,
 	 */
 #ifdef CW_DEBUGGING
 	/* for each network interface... */
+	jzy = get_ifi_info((gNetworkPreferredFamily == CW_IPv6) ? AF_INET6 : AF_INET, 1); 
+	for (a = jzy; a != NULL; a = a->ifi_next) {
+        printf("Interface name!!!: %s\n", a->ifi_name);
+    }
+	
 	for (ifihead = ifi = get_ifi_info((gNetworkPreferredFamily == CW_IPv6) ? AF_INET6 : AF_INET, 1); ifi != NULL; ifi = ifi->ifi_next) { 
 #else
 	/* for each network interface... */
 	for (ifihead = ifi = get_ifi_info((gNetworkPreferredFamily == CW_IPv6) ? AF_INET6 : AF_INET, 0); ifi != NULL; ifi = ifi->ifi_next) {
 #endif
+		printf("ifiname=%s\n",ifi->ifi_name);
 		/* bind a unicast address */
 		if((sock = socket(ifi->ifi_addr->sa_family, SOCK_DGRAM, 0)) < 0) {
 
@@ -193,10 +199,13 @@ CWBool CWNetworkInitSocketServerMultiHomed(CWMultiHomedSocket *sockPtr,
 		if(CWNetworkGetInterfaceAlreadyStored(interfaceList, ifi->ifi_index) == NULL &&
 		   strncmp(ifi->ifi_name, "lo", 2)) { /* don't consider loopback an interface
 							 (even if we accept packets from loopback) */
-			CWDebugLog("Primary Address");
+			printf("ifi_namePRIMARY=%s\n",ifi->ifi_name);
+			/*CWDebugLog("Primary Address");*/
+			CWLog("Primary Address");
 			p->kind = CW_PRIMARY;
 
 		} else {
+			printf("ifi_nameNOTPRIMARY=%s\n",ifi->ifi_name);
 			/* should be BROADCAST_OR_ALIAS_OR_MULTICAST_OR_LOOPBACK ;-) */
 			p->kind = CW_BROADCAST_OR_ALIAS;
 #ifdef CW_DEBUGGING
@@ -252,7 +261,7 @@ CWBool CWNetworkInitSocketServerMultiHomed(CWMultiHomedSocket *sockPtr,
 		}
 		/* we add a socket to the multihomed socket */
 		sockPtr->count++;	
-		
+		printf("sockPtr->count=%d\n",sockPtr->count);
 		if (ifi->ifi_flags & IFF_BROADCAST) { 
 			/* try to bind broadcast address */
 			if((sock = socket(ifi->ifi_addr->sa_family, SOCK_DGRAM, 0)) < 0) {
@@ -322,6 +331,7 @@ CWBool CWNetworkInitSocketServerMultiHomed(CWMultiHomedSocket *sockPtr,
 			}
 			/* we add a socket to the multihomed socket */
 			sockPtr->count++;
+			printf("sockPtr->count=%d\n",sockPtr->count);
 		}
 	}
 

@@ -190,6 +190,7 @@ struct ifi_info* get_ifi_info(int family, int doaliases)
 	char			*ptr, *buf, lastname[IFNAMSIZ], *cptr, *sdlname;
 	struct ifconf		ifc;
 	struct ifreq		*ifr, ifrcopy;
+	/*struct ifreq		*ifr, ifrcopy, ifs[100], *ifend;*/
 	struct sockaddr_in	*sinptr;
 	struct sockaddr_in6	*sin6ptr;
 
@@ -214,9 +215,45 @@ struct ifi_info* get_ifi_info(int family, int doaliases)
 	lastname[0] = 0;
 	sdlname = NULL;
 
+	ptr = buf;
+
+	printf("Size of struct ifreq=%zu bytes, ifc_len=%d\n",sizeof(struct ifreq), ifc.ifc_len);
+	while (ptr < buf + ifc.ifc_len) {
+        ifr = (struct ifreq *)ptr;
+        printf("Interface: %s\n", ifr->ifr_name);
+		if (ifr->ifr_flags & IFF_UP)       printf("IFF_UP\n");
+		else printf("interface is not UP\n");
+		ptr += sizeof(struct ifreq);
+    }
+
+
 	for (ptr = buf; ptr < buf + ifc.ifc_len; ) {
 		ifr = (struct ifreq *) ptr;
+		/*
+        struct ifreq            ifs[100];
+        struct ifreq            *ifend;
 
+        sockfd = socket(AF_INET, SOCK_DGRAM, 0);
+        lastlen = 0;
+        ifc.ifc_len = sizeof(ifs);
+        ifc.ifc_req = ifs;
+        if (ioctl(sockfd, SIOCGIFCONF, &ifc) < 0) {
+                CWLog("[%s]: ioctl(SIOCGIFCONF) error...\r\n", __func__);
+                close(sockfd);
+                return 0;
+        }
+
+        ifihead = NULL;
+        ifipnext = &ifihead;
+        lastname[0] = 0;
+        sdlname = NULL;
+
+        ifend = ifs + (ifc.ifc_len / sizeof(struct ifreq));
+        printf("[%s]:ifc.ifc_len = %d\r\n", __func__, ifc.ifc_len);
+
+        for (ifr=ifc.ifc_req; ifr < ifend; ifr++) {
+                printf("[%s]: ifr->ifr_name=%s\r\n", __func__, ifr->ifr_name);
+		*/
 #ifdef	HAVE_SOCKADDR_SA_LEN
 		len = max(sizeof(struct sockaddr), ifr->ifr_addr.sa_len);
 #else

@@ -129,15 +129,12 @@ int main (int argc, const char * argv[]) {
 	if (argc <= 1){
 		printf("Usage: AC working_path\n");
 	}
-	/*printf("222\n");
 
-	int result = daemon(1,0);
-	printf("return of daemon(1,0)=%d\n",result);
-	if (daemon(1, 0) < 0){
+	/*if (daemon(1, 0) < 0){*/
+	if (daemon(1, 1) < 0){
 		printf("daemon error\n");
 		exit(1);
 	}
-	printf("333\n");*/
 
 	if (chdir(argv[1]) != 0){
 		printf("changedir error\n");
@@ -214,8 +211,8 @@ void CWACInit() {
 #if !defined(CW_NO_DTLS) || defined(CW_DTLS_DATA_CHANNEL)
 	   !CWErr(CWSecurityInitLib()) ||
 #endif
-	   !CWErr(CWNetworkInitSocketServerMultiHomed(&gACSocket, CW_CONTROL_PORT, gMulticastGroups, gMulticastGroupsCount)) || /*********** */
-	   !CWErr(CWNetworkGetInterfaceAddresses(&gACSocket, &addresses, &IPv4Addresses)) ||
+	   !CWErr(CWNetworkInitSocketServerMultiHomed(&gACSocket, CW_CONTROL_PORT, gMulticastGroups, gMulticastGroupsCount)) || /*set socket for data,control,unicast */
+	   !CWErr(CWNetworkGetInterfaceAddresses(&gACSocket, &addresses, &IPv4Addresses)) ||  /*get the address of socket*/
 	   !CWErr(CWCreateThreadMutex(&gWTPsMutex)) ||
 	   !CWErr(CWCreateThreadMutex(&gActiveWTPsMutex))) {
 
@@ -258,8 +255,8 @@ void CWACInit() {
 	for(i = 0; i < gMaxWTPs; i++) {
 		gWTPs[i].isNotFree = CW_FALSE;
 		
-		/*
-		if (!gWTPs[i].tap_fd){
+		
+		/*if (!gWTPs[i].tap_fd){
 		    init_AC_tap_interface(i); 
 		}
 		*/
@@ -271,13 +268,14 @@ void CWACInit() {
 		exit(-1);
 	}
 	/* store network interface's addresses */
-	gInterfacesCount = CWNetworkCountInterfaceAddresses(&gACSocket); /********************* */
+	gInterfacesCount = CWNetworkCountInterfaceAddresses(&gACSocket); /*sockPtr->interfaces[i].kind == CW_PRIMARY, then, count++*/
 	CWLog("Found %d Network Interface(s)", gInterfacesCount);
 	
-	if (gInterfacesCount<=0){
+	/*jzy dont understand!*/
+	/*if (gInterfacesCount<=0){
 		CWLog("Can't start AC");
 		exit(1);
-	}
+	}*/
 
 	CW_CREATE_ARRAY_ERR(gInterfaces, 
 			    gInterfacesCount,

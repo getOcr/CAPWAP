@@ -32,6 +32,7 @@ int tun_alloc(char *dev, int flags) {
 
    /* open the clone device */
    if( (fd = open(clonedev, O_RDWR)) < 0 ) {
+     printf("cant open clonedev\n");
      return fd;
    }
 
@@ -87,6 +88,3 @@ CWBool CWACTapInterfaceInit()
     
     return CW_TRUE;
 }
-
-
-
